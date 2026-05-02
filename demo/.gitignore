@@ -1,4 +1,7 @@
 HELP.md
+
+.metadata/
+demo/uploads/
 target/
 
 !**/src/main/**/target/
