@@ -48,6 +48,10 @@ public class PostController {
     public ResponseEntity<List<Post>> getAllActive() {
         return ResponseEntity.ok(postService.findAllActive());
     }
+    @GetMapping("/promotion")
+    public ResponseEntity<List<Post>> getAllPromotion() {
+        return ResponseEntity.ok(postService.findAllPromotion());
+    }
 
     @GetMapping("/admin")
     @PreAuthorize("hasAnyRole('RECEPTIONIST', 'ADMIN')")

@@ -10,7 +10,15 @@ import com.example.demo.model.Post;
 public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByPublishedTrueOrderByCreatedAtDesc();
     
+    List<Post> findByActiveTrueOrderByCreatedAtDesc();
+    
+    List<Post> findByPromotionTrueOrderByCreatedAtDesc();
+    
     List<Post> findByActiveTrueAndPublishedTrueOrderByCreatedAtDesc();
     
-    List<Post> findByActiveTrueOrderByCreatedAtDesc();
+    List<Post> findByPromotionTrueAndPublishedTrueOrderByCreatedAtDesc();
+    
+    List<Post> findByActiveTrueAndPromotionTrueAndPublishedTrueOrderByCreatedAtDesc();
+    
+   
 }

@@ -33,9 +33,11 @@ public class Post {
     private boolean published;
     @Column(nullable = false, columnDefinition = "bit default 0")
     private Boolean active = false;
+    private Boolean promotion = false;
 
     public Post() {
         this.active = false;
+        this.promotion = false;
     }
 
     @PrePersist
@@ -72,4 +74,7 @@ public class Post {
 
     public Boolean getActive() { return active == null ? false : active; }
     public void setActive(Boolean active) { this.active = active == null ? false : active; }
+    
+    public Boolean getPromotion() { return promotion == null ? false : promotion; }
+    public void setPromotion(Boolean promotion) { this.promotion = promotion == null ? false : promotion; }
 }

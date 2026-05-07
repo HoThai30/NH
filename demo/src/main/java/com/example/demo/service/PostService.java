@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import javax.management.RuntimeErrorException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +33,10 @@ public class PostService {
     public List<Post> findAllActiveAdmin() {
         return postRepository.findByActiveTrueOrderByCreatedAtDesc();
     }
+    
+    public List<Post> findAllPromotion(){
+    	return postRepository.findByPromotionTrueOrderByCreatedAtDesc();
+    }
 
     public List<Post> findAll() {
         return postRepository.findAll();
@@ -39,20 +45,29 @@ public class PostService {
     public Optional<Post> findById(Long id) {
         return postRepository.findById(id);
     }
+    
+    private void validatePost(Post post) {
+    	if(post.getActive() && !post.isPublished()) {
+    		throw new RuntimeException("active must be publish");
+    	}
+    	if(post.getPromotion() && !post.isPublished()) {
+    		throw new RuntimeException("promotion must be publish");
+    	}
+    }
 
     @Transactional
     public Post createPost(Post post, User author) {
         post.setAuthor(author);
         post.setCreatedAt(LocalDateTime.now());
         post.setUpdatedAt(LocalDateTime.now());
-        post.setActive(post.isPublished());
+        validatePost(post);
         return postRepository.save(post);
     }
 
     @Transactional
     public Post updatePost(Post post) {
         post.setUpdatedAt(LocalDateTime.now());
-        post.setActive(post.isPublished());
+        validatePost(post);
         return postRepository.save(post);
     }
 

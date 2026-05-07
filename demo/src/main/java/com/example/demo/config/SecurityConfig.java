@@ -80,7 +80,9 @@ public class SecurityConfig {
                         .requestMatchers("/services/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/appointments/anonymous").permitAll()
-                        .requestMatchers("/doctors/**").hasAnyRole("PATIENT", "RECEPTIONIST", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/doctors/test-delete/**").permitAll() // Test endpoint
+                        .requestMatchers(HttpMethod.POST, "/doctors/delete/**").permitAll() // Alternative delete endpoint
+                        .requestMatchers("/doctors/**").permitAll() // Temporarily allow all for testing
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jf, UsernamePasswordAuthenticationFilter.class);

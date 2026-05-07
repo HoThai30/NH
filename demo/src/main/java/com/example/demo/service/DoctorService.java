@@ -9,9 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dto.DoctorCreateDTO;
 import com.example.demo.dto.DoctorUpdateDTO;
+import com.example.demo.model.Appointment;
 import com.example.demo.model.Doctor;
 import com.example.demo.model.Role;
 import com.example.demo.model.User;
+import com.example.demo.repository.AppointmentRepository;
 import com.example.demo.repository.DoctorRepository;
 import com.example.demo.repository.UserRepository;
 
@@ -19,11 +21,13 @@ import com.example.demo.repository.UserRepository;
 public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final UserRepository userRepository;
+    private final AppointmentRepository appointmentRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public DoctorService(DoctorRepository doctorRepository, UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+    public DoctorService(DoctorRepository doctorRepository, UserRepository userRepository, AppointmentRepository appointmentRepository, BCryptPasswordEncoder passwordEncoder) {
         this.doctorRepository = doctorRepository;
         this.userRepository = userRepository;
+        this.appointmentRepository = appointmentRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -212,4 +216,35 @@ public class DoctorService {
     public Optional<Doctor> findById(Long id) { return doctorRepository.findById(id); }
 
     public List<Doctor> findAll() { return doctorRepository.findAll(); }
+
+    /**
+     * Delete a doctor by ID
+     */
+    @Transactional
+    public void deleteById(Long id) {
+        Doctor doctor = doctorRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Doctor not found"));
+
+        // Find all appointments for this doctor and set doctor to null
+        List<Appointment> appointments = appointmentRepository.findByDoctor(doctor);
+
+        for (Appointment appointment : appointments) {
+            appointment.setDoctor(null);
+            appointmentRepository.save(appointment);
+        }
+
+        // Flush to ensure appointments are updated before deleting doctor
+        appointmentRepository.flush();
+
+        // Instead of deleting user, change role to indicate this user is no longer a doctor
+        if (doctor.getUser() != null) {
+            User user = doctor.getUser();
+            user.setRole(Role.PATIENT); // Change role to patient
+            user.setName(user.getName() + " (Former Doctor)");
+            userRepository.save(user);
+        }
+
+        // Delete doctor record only
+        doctorRepository.delete(doctor);
+    }
 }
