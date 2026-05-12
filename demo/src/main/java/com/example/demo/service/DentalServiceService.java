@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.model.DentalService;
 import com.example.demo.repository.DentalServiceRepository;
+import com.example.demo.util.CloudinaryValidator;
 
 @Service
 public class DentalServiceService {
@@ -35,7 +36,35 @@ public class DentalServiceService {
         return dentalServiceRepository.findById(id);
     }
 
-    // ================= CREATE =================
+    // ================= CREATE (từ JSON với Cloudinary URL) =================
+    @Transactional
+    public DentalService createServiceFromJson(DentalService dentalService) {
+        try {
+            // Validate required fields
+            if (dentalService.getName() == null || dentalService.getName().trim().isEmpty()) {
+                throw new IllegalArgumentException("Tên dịch vụ không được trống");
+            }
+            if (dentalService.getPrice() == null || dentalService.getPrice().compareTo(java.math.BigDecimal.ZERO) <= 0) {
+                throw new IllegalArgumentException("Giá không hợp lệ");
+            }
+
+            // Validate image URL if provided
+            if (dentalService.getImgService() != null && !dentalService.getImgService().trim().isEmpty()) {
+                String imgUrl = dentalService.getImgService().trim();
+                if (!CloudinaryValidator.isValidImageUrlOrEmpty(imgUrl)) {
+                    throw new IllegalArgumentException("URL hình ảnh không hợp lệ");
+                }
+                dentalService.setImgService(imgUrl);
+            }
+
+            return dentalServiceRepository.save(dentalService);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi tạo service: " + e.getMessage());
+        }
+    }
+
+    // ================= CREATE (từ MultipartFile) =================
     @Transactional
     public DentalService createService(DentalService dentalService, MultipartFile file) {
         try {
@@ -52,7 +81,45 @@ public class DentalServiceService {
         }
     }
 
-    // ================= UPDATE =================
+    // ================= UPDATE (từ JSON với Cloudinary URL) =================
+    @Transactional
+    public DentalService updateServiceFromJson(Long id, DentalService dentalService) {
+        DentalService existing = dentalServiceRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Service không tồn tại"));
+
+        try {
+            // Validate required fields
+            if (dentalService.getName() != null && !dentalService.getName().trim().isEmpty()) {
+                existing.setName(dentalService.getName());
+            }
+            if (dentalService.getDescription() != null) {
+                existing.setDescription(dentalService.getDescription());
+            }
+            if (dentalService.getPrice() != null && dentalService.getPrice().compareTo(java.math.BigDecimal.ZERO) > 0) {
+                existing.setPrice(dentalService.getPrice());
+            }
+            if (dentalService.getActive() != null) {
+                existing.setActive(dentalService.getActive());
+            }
+
+            // Update image if provided
+            if (dentalService.getImgService() != null && !dentalService.getImgService().trim().isEmpty()) {
+                String imgUrl = dentalService.getImgService().trim();
+                if (!CloudinaryValidator.isValidImageUrlOrEmpty(imgUrl)) {
+                    throw new IllegalArgumentException("URL hình ảnh không hợp lệ");
+                }
+                existing.setImgService(imgUrl);
+            }
+
+            return dentalServiceRepository.save(existing);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi update service: " + e.getMessage());
+        }
+    }
+
+    // ================= UPDATE (từ MultipartFile) =================
+    // ================= UPDATE (từ MultipartFile) =================
     @Transactional
     public DentalService updateService(Long id, DentalService dentalService, MultipartFile file) {
 

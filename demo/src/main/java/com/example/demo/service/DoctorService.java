@@ -16,6 +16,7 @@ import com.example.demo.model.User;
 import com.example.demo.repository.AppointmentRepository;
 import com.example.demo.repository.DoctorRepository;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.util.CloudinaryValidator;
 
 @Service
 public class DoctorService {
@@ -77,10 +78,10 @@ public class DoctorService {
 
         String pictureValue = null;
         if (dto.getUser().getProfilePicture() != null && !dto.getUser().getProfilePicture().isEmpty()) {
-            pictureValue = dto.getUser().getProfilePicture();
+            pictureValue = validateAndGetImageUrl(dto.getUser().getProfilePicture(), "User profile picture");
         }
         if ((dto.getProfilePicture() != null && !dto.getProfilePicture().isEmpty()) && pictureValue == null) {
-            pictureValue = dto.getProfilePicture();
+            pictureValue = validateAndGetImageUrl(dto.getProfilePicture(), "Doctor profile picture");
         }
         if (pictureValue != null) {
             user.setProfilePicture(pictureValue);
@@ -140,12 +141,12 @@ public class DoctorService {
 
         String pictureValue = null;
         if (dto.getUser() != null && dto.getUser().getProfilePicture() != null && !dto.getUser().getProfilePicture().isEmpty()) {
-            pictureValue = dto.getUser().getProfilePicture();
+            pictureValue = validateAndGetImageUrl(dto.getUser().getProfilePicture(), "User profile picture");
             user.setProfilePicture(pictureValue);
         }
 
         if (dto.getProfilePicture() != null && !dto.getProfilePicture().isEmpty()) {
-            pictureValue = dto.getProfilePicture();
+            pictureValue = validateAndGetImageUrl(dto.getProfilePicture(), "Doctor profile picture");
             doctor.setProfilePicture(dto.getProfilePicture());
             if (user.getProfilePicture() == null || user.getProfilePicture().isEmpty()) {
                 user.setProfilePicture(dto.getProfilePicture());
@@ -246,5 +247,24 @@ public class DoctorService {
 
         // Delete doctor record only
         doctorRepository.delete(doctor);
+    }
+
+    /**
+     * Validate and process image URL (Cloudinary)
+     * @param imageUrl The image URL to validate
+     * @param fieldName Field name for error messages
+     * @return The validated image URL
+     */
+    private String validateAndGetImageUrl(String imageUrl, String fieldName) {
+        if (imageUrl == null || imageUrl.trim().isEmpty()) {
+            return null;
+        }
+
+        String trimmedUrl = imageUrl.trim();
+        if (!CloudinaryValidator.isValidImageUrlOrEmpty(trimmedUrl)) {
+            throw new IllegalArgumentException(fieldName + " URL không hợp lệ: " + trimmedUrl);
+        }
+
+        return trimmedUrl;
     }
 }

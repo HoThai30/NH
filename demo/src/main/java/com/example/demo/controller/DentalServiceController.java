@@ -9,10 +9,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.model.DentalService;
 import com.example.demo.service.DentalServiceService;
@@ -48,27 +47,34 @@ public class DentalServiceController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // ================= CREATE (có ảnh) =================
+    // ================= CREATE =================
     @PostMapping
     @PreAuthorize("hasAnyRole('RECEPTIONIST', 'ADMIN')")
-    public ResponseEntity<DentalService> create(
-            @RequestPart("data") DentalService dentalService,
-            @RequestPart(value = "file", required = false) MultipartFile file) {
-
-        DentalService created = dentalServiceService.createService(dentalService, file);
-        return ResponseEntity.ok(created);
+    public ResponseEntity<?> create(@RequestBody DentalService dentalService) {
+        try {
+            DentalService created = dentalServiceService.createServiceFromJson(dentalService);
+            return ResponseEntity.ok(created);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body("Error: " + ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body("Error creating service: " + ex.getMessage());
+        }
     }
 
-    // ================= UPDATE (có thể đổi ảnh) =================
+    // ================= UPDATE =================
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('RECEPTIONIST', 'ADMIN')")
-    public ResponseEntity<DentalService> update(
+    public ResponseEntity<?> update(
             @PathVariable Long id,
-            @RequestPart("data") DentalService dentalService,
-            @RequestPart(value = "file", required = false) MultipartFile file) {
-
-        DentalService updated = dentalServiceService.updateService(id, dentalService, file);
-        return ResponseEntity.ok(updated);
+            @RequestBody DentalService dentalService) {
+        try {
+            DentalService updated = dentalServiceService.updateServiceFromJson(id, dentalService);
+            return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body("Error: " + ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body("Error updating service: " + ex.getMessage());
+        }
     }
 
     // ================= DELETE =================

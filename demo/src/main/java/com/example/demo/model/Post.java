@@ -31,8 +31,9 @@ public class Post {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean published;
-    @Column(nullable = false, columnDefinition = "bit default 0")
+    @Column(nullable = false)
     private Boolean active = false;
+    @Column(nullable = false)
     private Boolean promotion = false;
 
     public Post() {

@@ -4,14 +4,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import javax.management.RuntimeErrorException;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.model.Post;
 import com.example.demo.model.User;
 import com.example.demo.repository.PostRepository;
+import com.example.demo.util.CloudinaryValidator;
 
 @Service
 public class PostService {
@@ -47,12 +46,19 @@ public class PostService {
     }
     
     private void validatePost(Post post) {
-    	if(post.getActive() && !post.isPublished()) {
-    		throw new RuntimeException("active must be publish");
-    	}
-    	if(post.getPromotion() && !post.isPublished()) {
-    		throw new RuntimeException("promotion must be publish");
-    	}
+        if (post.getActive() && !post.isPublished()) {
+            throw new RuntimeException("active must be publish");
+        }
+        if (post.getPromotion() && !post.isPublished()) {
+            throw new RuntimeException("promotion must be publish");
+        }
+        // Validate image URL if provided
+        if (post.getImageUrl() != null && !post.getImageUrl().trim().isEmpty()) {
+            String imageUrl = post.getImageUrl().trim();
+            if (!CloudinaryValidator.isValidImageUrlOrEmpty(imageUrl)) {
+                throw new IllegalArgumentException("Post image URL không hợp lệ: " + imageUrl);
+            }
+        }
     }
 
     @Transactional

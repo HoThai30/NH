@@ -22,7 +22,6 @@ public class Receptionist {
 
     private String department;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String profilePicture;
 
     // Constructors

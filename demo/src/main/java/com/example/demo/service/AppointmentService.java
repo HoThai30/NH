@@ -130,15 +130,13 @@ public class AppointmentService {
 
         // Create visit record
         VisitRecord vr = new VisitRecord();
-        vr.setAppointment(null); // Don't link to appointment since it remains
+        vr.setAppointment(appointment); 
         vr.setPatient(appointment.getPatient());
         vr.setNotes(notes != null ? notes : appointment.getConsultationNeeds());
         vr.setProcedures(procedures);
         vr.setCost(BigDecimal.ZERO);
 
         VisitRecord saved = visitRecordRepository.save(vr);
-
-        // Do not delete the appointment, keep it with CONFIRMED status
 
         return saved;
     }

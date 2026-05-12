@@ -31,8 +31,8 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
-
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    
+    @Column(columnDefinition = "TEXT")
     private String profilePicture;
 
     public User() {}

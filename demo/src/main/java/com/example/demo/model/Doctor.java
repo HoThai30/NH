@@ -26,7 +26,6 @@ public class Doctor {
     @Column(length = 1000)
     private String workingHours;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String profilePicture;
 
     public Doctor() {}
