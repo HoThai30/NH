@@ -56,7 +56,7 @@ public class SecurityConfig {
                 "http://127.0.0.1:5173",
                 "http://localhost:8080",
                 "http://127.0.0.1:8080",
-                " https://nh-fe-rho.vercel.app"
+                "https://nh-fe-rho.vercel.app"
         ));
         configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
