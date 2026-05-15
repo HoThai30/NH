@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -63,5 +64,22 @@ public class VisitRecordService {
 
     public Optional<VisitRecord> findById(Long id) { return visitRecordRepository.findById(id); }
 
-    public java.util.List<VisitRecord> findAll() { return visitRecordRepository.findAll(); }
+    public java.util.List<VisitRecord> findAll() { 
+        return visitRecordRepository.findAll(); 
+    }
+
+    public List<VisitRecord> findByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        return visitRecordRepository.findByCreatedAtBetweenOrderByCreatedAtDesc(startDate, endDate);
+    }
+
+    public List<VisitRecord> findByDate(LocalDateTime startDate, LocalDateTime endDate) {
+        System.out.println("   Service: Executing findByDate query");
+        System.out.println("   Service: Start: " + startDate + ", End: " + endDate);
+        List<VisitRecord> results = visitRecordRepository.findByCreatedAtBetweenOrderByCreatedAtDesc(startDate, endDate);
+        System.out.println("   Service: Query returned " + results.size() + " records");
+        for (int i = 0; i < results.size(); i++) {
+            System.out.println("     [" + i + "] ID: " + results.get(i).getId() + ", CreatedAt: " + results.get(i).getCreatedAt());
+        }
+        return results;
+    }
 }
