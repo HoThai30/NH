@@ -1,5 +1,9 @@
 package com.example.demo.controller;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -11,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.model.Appointment;
@@ -112,7 +117,37 @@ public class VisitController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('RECEPTIONIST', 'DOCTOR', 'ADMIN')")
-    public ResponseEntity<?> getAll() {
-        return ResponseEntity.ok(visitRecordService.findAll());
+    public ResponseEntity<?> getAll(@RequestParam(required = false) String filterDate) {
+        try {
+            // If filterDate is provided, filter by creation date for that specific day
+            if (filterDate != null && !filterDate.isBlank()) {
+                LocalDate date = LocalDate.parse(filterDate);
+                LocalDateTime startDateTime = date.atStartOfDay();
+                LocalDateTime endDateTime = date.atTime(LocalTime.MAX);
+                
+                System.out.println("🔍 Backend Filter Debug:");
+                System.out.println("   Filter Date Input: " + filterDate);
+                System.out.println("   Start DateTime: " + startDateTime);
+                System.out.println("   End DateTime: " + endDateTime);
+                
+                var results = visitRecordService.findByDate(startDateTime, endDateTime);
+                System.out.println("   Results Count: " + results.size());
+                if (!results.isEmpty()) {
+                    System.out.println("   First Result CreatedAt: " + results.get(0).getCreatedAt());
+                }
+                
+                return ResponseEntity.ok(results);
+            }
+            
+            // If no date parameter, return all visits sorted by most recent first
+            var allResults = visitRecordService.findAll();
+            System.out.println("🔍 No filter - returning all: " + allResults.size() + " records");
+            return ResponseEntity.ok(allResults);
+        } catch (Exception e) {
+            System.err.println("❌ Filter Error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Invalid date format. Use YYYY-MM-DD: " + e.getMessage());
+        }
     }
 }
+
