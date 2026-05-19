@@ -75,15 +75,12 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/health").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/debug/**").permitAll()
                         .requestMatchers("/posts/**").permitAll()
                         .requestMatchers("/services/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/appointments/anonymous").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/doctors/test-delete/**").permitAll() // Test endpoint
-                        .requestMatchers(HttpMethod.POST, "/doctors/delete/**").permitAll() // Alternative delete endpoint
-                        .requestMatchers("/doctors/**").permitAll() // Temporarily allow all for testing
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jf, UsernamePasswordAuthenticationFilter.class);
